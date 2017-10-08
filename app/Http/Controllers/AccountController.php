@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Account;
@@ -16,6 +17,24 @@ use \Firebase\JWT\JWT;
 
 class AccountController extends Controller
 {
+    private function getAccountFromRequest(Request $req) {
+        $jwt = $req->cookie('GEEKAPK_JWT');
+        if(!$jwt) {
+            return null;
+        }
+
+        $key = config('app.JWT_KEY');
+        $info = JWT::decode($jwt, $key, [ 'HS256' ]);
+        if(!$info) {
+            return null;
+        }
+
+        $info = (array) $info;
+
+        $account = Account::find($info["user_id"]);
+        return $account;
+    }
+
     public function login(Request $req) {
         Validator::make(
             $req->all(),
@@ -57,7 +76,7 @@ class AccountController extends Controller
         ];
         $key = config('app.JWT_KEY');
         assert($key != null && strlen($key) > 0);
-        $jwt = JWT::encode($info, $key);
+        $jwt = JWT::encode($info, $key, 'HS256');
         $resp->withCookie('GEEKAPK_JWT', $jwt, 60 /* minutes */);
 
         return $resp;
@@ -140,5 +159,17 @@ class AccountController extends Controller
         ));
 
         return Result::buildOk();
+    }
+
+    public function info(Request $req) {
+        $account = $this->getAccountFromRequest($req);
+        if(!$account) {
+            return Result::buildErr(ErrorType::ERR_INVALID_TOKEN);
+        }
+
+        return Result::buildOk([
+            'name' => $account['name'],
+            'email' => $account['email']
+        ]);
     }
 }
