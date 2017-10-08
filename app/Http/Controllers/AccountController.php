@@ -15,8 +15,8 @@ class AccountController extends Controller
         Validator::make(
             $req->all(),
             [
-                'name' => 'required',
-                'password' => 'required'
+                'name' => 'required|string|max:255',
+                'password' => 'required|string|max:255'
             ]
         )->validate();
 
@@ -50,9 +50,9 @@ class AccountController extends Controller
         Validator::make(
             $req->all(),
             [
-                'name' => 'required|min:3',
-                'email' => 'required|email',
-                'password' => 'required|min:6'
+                'name' => 'required|string|max:255|min:3',
+                'email' => 'required|string|max:255|email',
+                'password' => 'required|string|max:255|min:6'
             ]
         )->validate();
 
