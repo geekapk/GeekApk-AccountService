@@ -230,4 +230,6 @@ return [
 
     'JWT_KEY' => env('APP_JWT_KEY', ''),
 
+    'REDIS_PREFIX' => env('APP_REDIS_PREFIX', 'geekapk_'),
+
 ];
