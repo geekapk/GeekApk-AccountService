@@ -16,3 +16,4 @@ use App\Article;
 
 Route::post('account/login', 'AccountController@login');
 Route::post('account/register', 'AccountController@register');
+Route::post('account/verify_email', 'AccountController@verify_email');

@@ -228,4 +228,6 @@ return [
 
     ],
 
+    'JWT_KEY' => env('APP_JWT_KEY', ''),
+
 ];
