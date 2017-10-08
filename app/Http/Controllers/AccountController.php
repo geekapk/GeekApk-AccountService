@@ -9,9 +9,10 @@ use App\PendingAccount;
 use App\LoginRecord;
 use App\Result;
 use App\ErrorType;
+use App\EmailQueue;
+use App\Email;
 use Validator;
 use \Firebase\JWT\JWT;
-use Predis;
 
 class AccountController extends Controller
 {
@@ -54,7 +55,7 @@ class AccountController extends Controller
             'email' => $account['email'],
             'create_time' => time()
         ];
-        $key = config('APP_JWT_KEY');
+        $key = config('app.JWT_KEY');
         assert($key != null && strlen($key) > 0);
         $jwt = JWT::encode($info, $key);
         $resp->withCookie('GEEKAPK_JWT', $jwt, 60 /* minutes */);
@@ -131,6 +132,12 @@ class AccountController extends Controller
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'email_token' => $emailToken
         ]);
+
+        EmailQueue::push(new Email(
+            $email,
+            'GeekApk 注册确认',
+            'Token: ' . $emailToken // TODO: User-friendly email content
+        ));
 
         return Result::buildOk();
     }
