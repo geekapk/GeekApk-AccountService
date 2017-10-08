@@ -7,10 +7,19 @@ use App\Account;
 use App\LoginRecord;
 use App\Result;
 use App\ErrorType;
+use Validator;
 
 class AccountController extends Controller
 {
     public function login(Request $req) {
+        Validator::make(
+            $req->all(),
+            [
+                'name' => 'required',
+                'password' => 'required'
+            ]
+        )->validate();
+
         $name = $req->input('name');
         $password = $req->input('password');
 
@@ -38,23 +47,20 @@ class AccountController extends Controller
     }
 
     public function register(Request $req) {
+        Validator::make(
+            $req->all(),
+            [
+                'name' => 'required|min:3',
+                'email' => 'required|email',
+                'password' => 'required|min:6'
+            ]
+        )->validate();
+
         $name = $req->input('name');
         $email = $req->input('email');
         $password = $req->input('password');
         
         $name = strtolower($name);
-
-        if(strlen($name) < 3) {
-            return Result::buildErr(ErrorType::ERR_INVALID_USERNAME);
-        }
-
-        if(strlen($password) < 6) {
-            return Result::buildErr(ErrorType::ERR_INVALID_PASSWORD);
-        }
-
-        if(strlen($email) < 1) {
-            return Result::buildErr(ErrorType::ERR_INVALID_EMAIL);
-        }
 
         $account = Account::where('name', $name)->first();
         if($account) {
